@@ -1,0 +1,34 @@
+name: Deploy to Hugging Face
+
+on:
+  push:
+    branches:
+      - main  # Trigger the workflow when pushing to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.9'  # Adjust Python version if needed
+
+    - name: Install dependencies
+      run: |
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Hugging Face Login
+      env:
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      run: huggingface-cli login --token $HF_TOKEN
+
+    - name: Deploy to Hugging Face
+      env:
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      run: huggingface-cli repo create ahmar47/mlops_ass4 --type=space --sdk=gradio --yes && \
+           huggingface-cli repo upload ./ --repo-id ahmar47/mlops_ass4 --yes
