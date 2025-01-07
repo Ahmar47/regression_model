@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-22.04  # Explicitly specify Ubuntu 22.04 or update to 24.04 if supported
+    runs-on: ubuntu-22.04  # Specify Ubuntu 22.04 or update to 24.04 if supported
 
     steps:
     - name: Checkout code
@@ -27,8 +27,14 @@ jobs:
         HF_TOKEN: ${{ secrets.HF_TOKEN }}
       run: huggingface-cli login --token $HF_TOKEN
 
+    - name: Create Hugging Face Repository (if not exists)
+      env:
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      run: |
+        huggingface-cli repo create ahmar47/mlops_ass4 --type=space --sdk=gradio --yes || echo "Repository already exists."
+
     - name: Deploy to Hugging Face
       env:
         HF_TOKEN: ${{ secrets.HF_TOKEN }}
-      run: huggingface-cli repo create ahmar47/mlops_ass4 --type=space --sdk=gradio --yes && \
-           huggingface-cli repo upload ./ --repo-id ahmar47/mlops_ass4 --yes
+      run: |
+        huggingface-cli repo upload ./ --repo-id ahmar47/mlops_ass4 --yes
